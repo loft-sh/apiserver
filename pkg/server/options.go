@@ -59,7 +59,7 @@ func (o *ServerOptions) GenericConfig(tweakConfig func(config *genericapiserver.
 		}
 
 		serviceResolver := buildServiceResolver(serverConfig.LoopbackClientConfig.Host, kubeInformerFactory)
-		pluginInitializers, admissionPostStartHook, err := admissionConfig.New(proxyTransport, serverConfig.EgressSelector, serviceResolver, nil)
+		pluginInitializers, admissionPostStartHook, err := admissionConfig.New(proxyTransport, serverConfig.EgressSelector, serviceResolver, &serverConfig.TracerProvider)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create admission plugin initializer: %v", err)
 		}
