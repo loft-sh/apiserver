@@ -1,10 +1,11 @@
 package generate
 
 import (
-	"k8s.io/klog"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"k8s.io/klog"
 
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -19,7 +20,8 @@ import (
 type CustomArgs struct{}
 
 type Gen struct {
-	p []generator.Package
+	p       []generator.Package
+	imports namer.ImportTracker
 
 	GroupConverter func(apigroup *APIGroup)
 }
@@ -41,7 +43,7 @@ func (g *Gen) DefaultNameSystem() string {
 func (g *Gen) NameSystems() namer.NameSystems {
 	return namer.NameSystems{
 		"public": namer.NewPublicNamer(1),
-		"raw":    namer.NewRawNamer("", nil),
+		"raw":    namer.NewRawNamer("", g.imports),
 	}
 }
 

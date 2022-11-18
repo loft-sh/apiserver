@@ -29,7 +29,7 @@ func (d *installGenerator) Imports(c *generator.Context) []string {
 		"github.com/loft-sh/apiserver/pkg/builders",
 		`utilruntime "k8s.io/apimachinery/pkg/util/runtime"`,
 		"k8s.io/apimachinery/pkg/runtime",
-		`metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"`,
+		// `metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"`,
 	}
 	for _, version := range d.apigroup.Versions {
 		imports = append(imports, path.Join(apisPkg, version.Group, version.Version))

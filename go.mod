@@ -10,7 +10,7 @@ require (
 	k8s.io/apimachinery v0.25.4
 	k8s.io/apiserver v0.25.4
 	k8s.io/client-go v0.25.4
-	k8s.io/gengo v0.0.0-20211129171323-c02415ce4185
+	k8s.io/gengo v0.0.0-20221011193443-fad74ee6edd9
 	k8s.io/klog v1.0.0
 	k8s.io/klog/v2 v2.80.1
 	k8s.io/kube-aggregator v0.25.4
