@@ -17,12 +17,13 @@ limitations under the License.
 package main
 
 import (
-	template2 "github.com/loft-sh/apiserver/pkg/generate"
 	"os"
 	"runtime"
 
+	template2 "github.com/loft-sh/apiserver/pkg/generate"
+
 	"k8s.io/gengo/args"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 func main() {

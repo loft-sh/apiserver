@@ -1,18 +1,17 @@
 module github.com/loft-sh/apiserver
 
-go 1.19
+go 1.20
 
 require (
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/cobra v1.6.1
+	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	go.opentelemetry.io/otel/trace v1.12.0
 	k8s.io/apimachinery v0.26.1
 	k8s.io/apiserver v0.26.1
 	k8s.io/client-go v0.26.1
 	k8s.io/gengo v0.0.0-20221011193443-fad74ee6edd9
-	k8s.io/klog v1.0.0
-	k8s.io/klog/v2 v2.90.0
+	k8s.io/klog/v2 v2.100.1
 	k8s.io/kube-aggregator v0.26.1
 	k8s.io/kube-openapi v0.0.0-20230202010329-39b3636cbaa3
 )
