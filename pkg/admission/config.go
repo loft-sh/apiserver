@@ -69,7 +69,7 @@ func (c *Config) New(proxyTransport *http.Transport, egressSelector *egressselec
 
 	admissionPostStartHook := func(context genericapiserver.PostStartHookContext) error {
 		discoveryRESTMapper.Reset()
-		go utilwait.Until(discoveryRESTMapper.Reset, 30*time.Second, context.StopCh)
+		go utilwait.Until(discoveryRESTMapper.Reset, 30*time.Second, context.Context.Done())
 		return nil
 	}
 
