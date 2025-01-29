@@ -5,12 +5,12 @@ import (
 	"text/template"
 
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/gengo/generator"
-	"k8s.io/gengo/namer"
+	"k8s.io/gengo/v2/generator"
+	"k8s.io/gengo/v2/namer"
 )
 
 type unversionedGenerator struct {
-	generator.DefaultGen
+	generator.GoGenerator
 	apigroup *APIGroup
 }
 
@@ -18,7 +18,7 @@ var _ generator.Generator = &unversionedGenerator{}
 
 func CreateUnversionedGenerator(apigroup *APIGroup, filename string) generator.Generator {
 	return &unversionedGenerator{
-		generator.DefaultGen{OptionalName: filename},
+		generator.GoGenerator{OutputFilename: filename},
 		apigroup,
 	}
 }

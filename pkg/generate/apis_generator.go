@@ -3,12 +3,13 @@ package generate
 import (
 	"fmt"
 	"io"
-	"k8s.io/gengo/generator"
 	"text/template"
+
+	"k8s.io/gengo/v2/generator"
 )
 
 type apiGenerator struct {
-	generator.DefaultGen
+	generator.GoGenerator
 	apis *APIs
 }
 
@@ -16,7 +17,7 @@ var _ generator.Generator = &apiGenerator{}
 
 func CreateApisGenerator(apis *APIs, filename string) generator.Generator {
 	return &apiGenerator{
-		generator.DefaultGen{OptionalName: filename},
+		generator.GoGenerator{OutputFilename: filename},
 		apis,
 	}
 }

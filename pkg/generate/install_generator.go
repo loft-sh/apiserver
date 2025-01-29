@@ -5,19 +5,19 @@ import (
 	"path"
 	"text/template"
 
-	"k8s.io/gengo/generator"
+	"k8s.io/gengo/v2/generator"
 )
 
 type installGenerator struct {
-	generator.DefaultGen
+	generator.GoGenerator
 	apigroup *APIGroup
 }
 
-var _ generator.Generator = &unversionedGenerator{}
+var _ generator.Generator = &installGenerator{}
 
 func CreateInstallGenerator(apigroup *APIGroup, filename string) generator.Generator {
 	return &installGenerator{
-		generator.DefaultGen{OptionalName: filename},
+		generator.GoGenerator{OutputFilename: filename},
 		apigroup,
 	}
 }

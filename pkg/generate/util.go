@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"k8s.io/gengo/types"
+	"k8s.io/gengo/v2/types"
 )
 
 // IsAPIResource returns true if t has a +resource comment tag

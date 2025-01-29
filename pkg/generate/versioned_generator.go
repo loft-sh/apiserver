@@ -2,14 +2,15 @@ package generate
 
 import (
 	"io"
-	"k8s.io/gengo/namer"
 	"text/template"
 
-	"k8s.io/gengo/generator"
+	"k8s.io/gengo/v2/generator"
+
+	"k8s.io/gengo/v2/namer"
 )
 
 type versionedGenerator struct {
-	generator.DefaultGen
+	generator.GoGenerator
 	apiversion *APIVersion
 	apigroup   *APIGroup
 }
@@ -18,7 +19,7 @@ var _ generator.Generator = &versionedGenerator{}
 
 func CreateVersionedGenerator(apiversion *APIVersion, apigroup *APIGroup, filename string) generator.Generator {
 	return &versionedGenerator{
-		generator.DefaultGen{OptionalName: filename},
+		generator.GoGenerator{OutputFilename: filename},
 		apiversion,
 		apigroup,
 	}
@@ -39,11 +40,7 @@ func (d *versionedGenerator) Imports(c *generator.Context) []string {
 		"k8s.io/apimachinery/pkg/runtime",
 		"github.com/loft-sh/apiserver/pkg/builders",
 		"k8s.io/apimachinery/pkg/runtime/schema",
-		"k8s.io/apiserver/pkg/registry/generic",
 		d.apigroup.Pkg.Path,
-	}
-	if hasSubresources(d.apiversion) {
-		imports = append(imports, "k8s.io/apiserver/pkg/registry/rest")
 	}
 
 	return imports
@@ -96,9 +93,7 @@ var (
 			{{ $api.Group }}.Internal{{ $subresource.Kind }}REST,
 			func() runtime.Object { return &{{ $subresource.Request }}{} }, // Register versioned resource
 			nil,
-            {{ if $subresource.REST }}{{ $api.Group }}.New{{ $subresource.REST }}{{ else -}}
-			func(generic.RESTOptionsGetter) rest.Storage { return &{{ $api.Group }}.{{ $subresource.Kind }}REST{Registry: {{$api.Group}}.New{{$api.Kind}}Registry({{$api.Group}}.{{$api.Group|public}}{{$api.Kind}}Storage) } },
-			{{ end -}}
+            {{ $api.Group }}.New{{ $subresource.REST }},
 		),
 		{{ end -}}
 		{{ end -}}

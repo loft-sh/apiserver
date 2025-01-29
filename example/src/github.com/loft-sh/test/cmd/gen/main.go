@@ -17,11 +17,11 @@ limitations under the License.
 package main
 
 import (
-	template2 "github.com/loft-sh/apiserver/pkg/generate"
 	"os"
 	"runtime"
 
-	"k8s.io/gengo/args"
+	template2 "github.com/loft-sh/apiserver/pkg/generate"
+
 	"k8s.io/klog/v2"
 )
 
@@ -30,17 +30,8 @@ func main() {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 	}
 
-	arguments := args.Default()
-
-	// Override defaults.
-	arguments.OutputFileBaseName = "zz_generated.api.register"
-
-	// Custom args.
-	customArgs := &template2.CustomArgs{}
-	arguments.CustomArgs = customArgs
-
 	g := template2.Gen{}
-	if err := g.Execute(arguments); err != nil {
+	if err := g.Execute("zz_generated.api.register.go", "github.com/loft-sh/test/apis/..."); err != nil {
 		klog.Fatalf("Error: %v", err)
 	}
 	klog.V(2).Info("Completed successfully.")
