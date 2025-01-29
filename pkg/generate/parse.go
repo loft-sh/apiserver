@@ -9,9 +9,8 @@ import (
 	"strings"
 
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/gengo/args"
-	"k8s.io/gengo/generator"
-	"k8s.io/gengo/types"
+	"k8s.io/gengo/v2/generator"
+	"k8s.io/gengo/v2/types"
 	"k8s.io/klog/v2"
 )
 
@@ -149,7 +148,6 @@ type APISubresource struct {
 
 type APIsBuilder struct {
 	context         *generator.Context
-	arguments       *args.GeneratorArgs
 	Domain          string
 	VersionedPkgs   sets.String
 	UnversionedPkgs sets.String
@@ -165,10 +163,9 @@ type APIsBuilder struct {
 	Groups                map[string]types.Package
 }
 
-func NewAPIsBuilder(context *generator.Context, arguments *args.GeneratorArgs) *APIsBuilder {
+func NewAPIsBuilder(context *generator.Context) *APIsBuilder {
 	b := &APIsBuilder{
-		context:   context,
-		arguments: arguments,
+		context: context,
 	}
 	b.ParsePackages()
 	b.ParseDomain()

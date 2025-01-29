@@ -2,6 +2,7 @@ package generate
 
 import (
 	"fmt"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -9,28 +10,29 @@ import (
 	"k8s.io/klog/v2"
 
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/gengo/args"
-	"k8s.io/gengo/generator"
-	"k8s.io/gengo/namer"
-	"k8s.io/gengo/types"
+	gengo "k8s.io/gengo/v2"
+	"k8s.io/gengo/v2/generator"
+	"k8s.io/gengo/v2/namer"
+	"k8s.io/gengo/v2/types"
 )
 
-// CustomArgs is used tby the go2idl framework to pass args specific to this
-// generator.
-type CustomArgs struct{}
-
 type Gen struct {
-	p       []generator.Package
+	p       []generator.Target
 	imports namer.ImportTracker
 
 	GroupConverter func(apigroup *APIGroup)
 }
 
-func (g *Gen) Execute(arguments *args.GeneratorArgs) error {
-	return arguments.Execute(
+func (g *Gen) Execute(outputFileName string, patterns ...string) error {
+	return gengo.Execute(
 		g.NameSystems(),
 		g.DefaultNameSystem(),
-		g.Packages)
+		func(context *generator.Context) []generator.Target {
+			return g.Packages(context, outputFileName)
+		},
+		gengo.StdBuildTag,
+		patterns,
+	)
 }
 
 // DefaultNameSystem returns the default name system for ordering the types to be
@@ -47,7 +49,7 @@ func (g *Gen) NameSystems() namer.NameSystems {
 	}
 }
 
-func (g *Gen) ParsePackages(context *generator.Context, arguments *args.GeneratorArgs) (sets.String, sets.String, string, string) {
+func (g *Gen) ParsePackages(context *generator.Context) (sets.String, sets.String, string, string) {
 	versionedPkgs := sets.NewString()
 	unversionedPkgs := sets.NewString()
 	mainPkg := ""
@@ -71,62 +73,69 @@ func (g *Gen) ParsePackages(context *generator.Context, arguments *args.Generato
 	return versionedPkgs, unversionedPkgs, apisPkg, mainPkg
 }
 
-func (g *Gen) Packages(context *generator.Context, arguments *args.GeneratorArgs) generator.Packages {
-	boilerplate, err := arguments.LoadGoBoilerplate()
+func (g *Gen) Packages(context *generator.Context, outputFileName string) []generator.Target {
+	boilerplate, err := LoadGoBoilerplate()
 	if err != nil {
 		klog.Warningf("failed loading boilerplate, fallback to default boilerplate: %v", err)
 		boilerplate = []byte{}
 	}
-	g.p = generator.Packages{}
-
-	b := NewAPIsBuilder(context, arguments)
+	g.p = []generator.Target{}
+	b := NewAPIsBuilder(context)
 	for _, apigroup := range b.APIs.Groups {
 		if g.GroupConverter != nil {
 			g.GroupConverter(apigroup)
 		}
 
 		for _, apiversion := range apigroup.Versions {
-			factory := &packageFactory{apiversion.Pkg.Path, arguments, boilerplate}
+			factory := &packageFactory{apiversion.Pkg.Path, boilerplate}
 			// Add generators for versioned types
-			gen := CreateVersionedGenerator(apiversion, apigroup, arguments.OutputFileBaseName)
-			g.p = append(g.p, factory.createPackage(gen))
+			gen := CreateVersionedGenerator(apiversion, apigroup, outputFileName)
+			g.p = append(g.p, factory.createPackage(context, gen))
 		}
 
-		factory := &packageFactory{apigroup.Pkg.Path, arguments, boilerplate}
-		gen := CreateUnversionedGenerator(apigroup, arguments.OutputFileBaseName)
-		g.p = append(g.p, factory.createPackage(gen))
+		factory := &packageFactory{apigroup.Pkg.Path, boilerplate}
+		gen := CreateUnversionedGenerator(apigroup, outputFileName)
+		g.p = append(g.p, factory.createPackage(context, gen))
 
-		factory = &packageFactory{path.Join(apigroup.Pkg.Path, "install"), arguments, boilerplate}
-		gen = CreateInstallGenerator(apigroup, arguments.OutputFileBaseName)
-		g.p = append(g.p, factory.createPackage(gen))
+		factory = &packageFactory{path.Join(apigroup.Pkg.Path, "install"), boilerplate}
+		gen = CreateInstallGenerator(apigroup, outputFileName)
+		g.p = append(g.p, factory.createPackage(context, gen))
 	}
 
-	apisFactory := &packageFactory{b.APIs.Pkg.Path, arguments, boilerplate}
-	gen := CreateApisGenerator(b.APIs, arguments.OutputFileBaseName)
-	g.p = append(g.p, apisFactory.createPackage(gen))
+	apisFactory := &packageFactory{b.APIs.Pkg.Path, boilerplate}
+	gen := CreateApisGenerator(b.APIs, outputFileName)
+	g.p = append(g.p, apisFactory.createPackage(context, gen))
 
 	return g.p
 }
 
 type packageFactory struct {
 	path       string
-	arguments  *args.GeneratorArgs
 	headerText []byte
 }
 
 // Creates a package with a generator
-func (f *packageFactory) createPackage(gen generator.Generator) generator.Package {
-	path := f.path
-	name := strings.Split(filepath.Base(f.path), ".")[0]
-	return &generator.DefaultPackage{
-		PackageName: name,
-		PackagePath: path,
-		HeaderText:  f.headerText,
-		GeneratorFunc: func(c *generator.Context) (generators []generator.Generator) {
+func (f *packageFactory) createPackage(ctx *generator.Context, gen generator.Generator) generator.Target {
+	return &generator.SimpleTarget{
+		PkgName:       strings.Split(filepath.Base(f.path), ".")[0],
+		PkgPath:       f.path,
+		PkgDir:        ctx.Universe[f.path].Dir,
+		HeaderComment: f.headerText,
+		GeneratorsFunc: func(c *generator.Context) (generators []generator.Generator) {
 			return []generator.Generator{gen}
 		},
 		FilterFunc: func(c *generator.Context, t *types.Type) bool {
 			return t.Name.Package == f.path
 		},
 	}
+}
+
+// LoadGoBoilerplate loads the boilerplate file passed to --go-header-file.
+func LoadGoBoilerplate() ([]byte, error) {
+	generatorName := filepath.Base(os.Args[0])
+	// Strip the extension from the name to normalize output between *nix and Windows.
+	generatorName = generatorName[:len(generatorName)-len(filepath.Ext(generatorName))]
+	generatedByComment := strings.Replace("// Code generated by GENERATOR_NAME. DO NOT EDIT.", "GENERATOR_NAME", generatorName, -1)
+	s := fmt.Sprintf("%s\n\n", generatedByComment)
+	return []byte(s), nil
 }
