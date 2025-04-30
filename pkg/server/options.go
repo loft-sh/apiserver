@@ -24,7 +24,7 @@ import (
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	utilapiserverversion "k8s.io/component-base/version"
+	compatibility "k8s.io/component-base/compatibility"
 	"k8s.io/klog/v2"
 	aggregatorapiserver "k8s.io/kube-aggregator/pkg/apiserver"
 	openapi "k8s.io/kube-openapi/pkg/common"
@@ -130,7 +130,7 @@ func (o *ServerOptions) RunServer(APIServerVersion *version.Info, stopCh <-chan 
 	}
 
 	// aggregatedAPIServerConfig.EffectiveVersion = utilapiserverversion.DefaultComponentGlobalsRegistry.EffectiveVersionFor("loft-apiserver")
-	aggregatedAPIServerConfig.EffectiveVersion = utilapiserverversion.NewEffectiveVersion(APIServerVersion.String())
+	aggregatedAPIServerConfig.EffectiveVersion = compatibility.NewEffectiveVersionFromString(APIServerVersion.String(), "", "")
 
 	// set the basics
 	genericConfig := &aggregatedAPIServerConfig.Config
