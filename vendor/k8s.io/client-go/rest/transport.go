@@ -112,7 +112,7 @@ func (c *Config) TransportConfig() (*transport.Config, error) {
 	}
 
 	if c.Dial != nil {
-		conf.DialHolder = &transport.DialHolder{Dial: c.Dial, DisableCache: true}
+		conf.DialHolder = &transport.DialHolder{Dial: c.Dial}
 	}
 
 	if c.ExecProvider != nil && c.AuthProvider != nil {
