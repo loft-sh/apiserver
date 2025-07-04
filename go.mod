@@ -8,10 +8,10 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	go.opentelemetry.io/otel/trace v1.33.0
-	k8s.io/apimachinery v0.33.0
+	k8s.io/apimachinery v0.33.1
 	k8s.io/apiserver v0.33.0
-	k8s.io/client-go v0.33.0
-	k8s.io/component-base v0.33.0
+	k8s.io/client-go v0.33.1
+	k8s.io/component-base v0.33.1
 	k8s.io/gengo/v2 v2.0.0-20250207200755-1244d31929d7
 	k8s.io/klog/v2 v2.130.1
 	k8s.io/kube-aggregator v0.33.0
@@ -101,9 +101,9 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/api v0.33.0 // indirect
+	k8s.io/api v0.33.1 // indirect
 	k8s.io/apiextensions-apiserver v0.32.1 // indirect
-	k8s.io/kms v0.33.0 // indirect
+	k8s.io/kms v0.33.1 // indirect
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.31.2 // indirect
 	sigs.k8s.io/json v0.0.0-20241010143419-9aa6b5e7a4b3 // indirect
@@ -113,6 +113,6 @@ require (
 )
 
 replace (
-	k8s.io/apiserver => github.com/loft-sh/k8s-apiserver v0.33.0-loft.0
-	k8s.io/client-go => github.com/loft-sh/k8s-client-go v0.33.0-loft.0
+	k8s.io/apiserver => github.com/loft-sh/k8s-apiserver v0.33.1-loft.0
+	k8s.io/client-go => github.com/loft-sh/k8s-client-go v0.33.1-loft.1
 )
