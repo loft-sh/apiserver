@@ -88,6 +88,7 @@ func (o *ServerOptions) GenericConfig(tweakConfig func(config *genericapiserver.
 			kubeClient,
 			dynamicClient,
 			utilfeature.DefaultFeatureGate,
+			serverConfig.EffectiveVersion,
 			pluginInitializers...)
 		if err != nil {
 			return nil, fmt.Errorf("failed to initialize admission: %v", err)

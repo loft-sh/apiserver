@@ -429,7 +429,7 @@ func ParseSubresourceTag(c *APIResource, tag string) SubresourceTags {
 			result.Kind = value
 		case "path":
 			// Strip the parent resource
-			result.Path = strings.Replace(value, c.Resource+"/", "", -1)
+			result.Path = strings.ReplaceAll(value, c.Resource+"/", "")
 		}
 	}
 	return result

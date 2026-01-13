@@ -61,7 +61,7 @@ func NewServer(recommendedConfig *genericapiserver.RecommendedConfig, apis []*bu
 		GenericAPIServer: genericServer,
 	}
 	for _, builder := range apis {
-		group := builder.Build(recommendedConfig.Config.RESTOptionsGetter)
+		group := builder.Build(recommendedConfig.RESTOptionsGetter)
 		group.NegotiatedSerializer = newProtocolShieldSerializers(&builders.Codecs)
 		if err := s.GenericAPIServer.InstallAPIGroup(group); err != nil {
 			return nil, err
@@ -104,11 +104,11 @@ func (pss *protocolShieldSerializers) EncoderForVersion(encoder runtime.Encoder,
 	if pss == nil {
 		return nil
 	}
-	return pss.CodecFactory.CodecForVersions(encoder, nil, gv, nil)
+	return pss.CodecForVersions(encoder, nil, gv, nil)
 }
 func (pss *protocolShieldSerializers) DecoderToVersion(decoder runtime.Decoder, gv runtime.GroupVersioner) runtime.Decoder {
 	if pss == nil {
 		return nil
 	}
-	return pss.CodecFactory.CodecForVersions(nil, decoder, nil, gv)
+	return pss.CodecForVersions(nil, decoder, nil, gv)
 }
