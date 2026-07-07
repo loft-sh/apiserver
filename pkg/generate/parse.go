@@ -570,9 +570,11 @@ func (b *APIsBuilder) ParseStructsAndAliases(apigroup *APIGroup) {
 			result.GenDeepCopy = true
 		}
 
-		if next.Resource != nil {
-			result.NonNamespaced = IsNonNamespaced(next.Type)
-		}
+		// Determine this from the type's own comment tags instead of the queue
+		// entry: a resource kind can also be enqueued as a plain field type
+		// (with next.Resource == nil), and which entry wins the name dedup
+		// above depends on map iteration order.
+		result.NonNamespaced = IsNonNamespaced(next.Type)
 
 		if b.GenDeepCopy(next.Type) {
 			result.GenDeepCopy = true
