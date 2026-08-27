@@ -25,7 +25,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	compatibility "k8s.io/component-base/compatibility"
-	"k8s.io/klog/v2"
 	aggregatorapiserver "k8s.io/kube-aggregator/pkg/apiserver"
 	openapi "k8s.io/kube-openapi/pkg/common"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -47,11 +46,11 @@ func (o *ServerOptions) GenericConfig(tweakConfig func(config *genericapiserver.
 	serverConfig := genericapiserver.NewRecommendedConfig(builders.Codecs)
 	loopbackKubeConfig, kubeInformerFactory, err := o.buildLoopback()
 	if err != nil {
-		klog.Warningf("attempting to instantiate loopback client but failed: %v", err)
-	} else {
-		serverConfig.LoopbackClientConfig = loopbackKubeConfig
-		serverConfig.SharedInformerFactory = kubeInformerFactory
+		return nil, fmt.Errorf("failed to build loopback client: %w", err)
 	}
+	serverConfig.LoopbackClientConfig = loopbackKubeConfig
+	serverConfig.SharedInformerFactory = kubeInformerFactory
+
 	kubeClient, err := kubernetes.NewForConfig(serverConfig.LoopbackClientConfig)
 	if err != nil {
 		return nil, err
@@ -60,7 +59,7 @@ func (o *ServerOptions) GenericConfig(tweakConfig func(config *genericapiserver.
 	_ = o.RecommendedOptions.Authorization.ApplyTo(&serverConfig.Authorization)
 
 	// admission webhooks
-	if !o.DisableWebhooks && serverConfig.LoopbackClientConfig != nil {
+	if !o.DisableWebhooks {
 		proxyTransport := createNodeDialer()
 		admissionConfig := &admission.Config{
 			ExternalInformers:    kubeInformerFactory,
