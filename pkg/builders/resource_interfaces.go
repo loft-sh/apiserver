@@ -56,8 +56,8 @@ type StorageBuilder interface {
 
 	ObjectNameFunc(obj runtime.Object) (string, error)
 	NamespaceScoped() bool
-	AllowCreateOnUpdate() bool
-	AllowUnconditionalUpdate() bool
+	AllowCreateOnUpdate(ctx context.Context) bool
+	AllowUnconditionalUpdate(ctx context.Context) bool
 	Canonicalize(obj runtime.Object)
 	PrepareForCreate(ctx context.Context, obj runtime.Object)
 	PrepareForUpdate(ctx context.Context, obj, old runtime.Object)
