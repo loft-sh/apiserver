@@ -68,9 +68,9 @@ func (DefaultStorageStrategy) Build(builder StorageBuilder, store *StorageWrappe
 
 func (DefaultStorageStrategy) NamespaceScoped() bool { return true }
 
-func (DefaultStorageStrategy) AllowCreateOnUpdate() bool { return true }
+func (DefaultStorageStrategy) AllowCreateOnUpdate(ctx context.Context) bool { return true }
 
-func (DefaultStorageStrategy) AllowUnconditionalUpdate() bool { return true }
+func (DefaultStorageStrategy) AllowUnconditionalUpdate(ctx context.Context) bool { return true }
 
 func (DefaultStorageStrategy) Canonicalize(obj runtime.Object) {}
 
